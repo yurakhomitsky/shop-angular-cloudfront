@@ -7,10 +7,11 @@
     "watch": "tsc -w",
     "prestart": "npm run build",
     "start": "func start",
-    "publish": "func azure functionapp publish fa-products-service-ne-001"
+    "publish": "func azure functionapp publish fa-import-service-ne-777"
   },
   "dependencies": {
-    "@azure/cosmos": "^4.0.0"
+    "@azure/storage-blob": "^12.17.0",
+    "csv-parse": "^5.5.5"
   },
   "devDependencies": {
     "@azure/functions": "^3.0.0",
