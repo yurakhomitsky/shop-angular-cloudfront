@@ -2,13 +2,10 @@ import { AzureFunction, Context, HttpRequest } from '@azure/functions';
 import {
   cosmosClient,
   databaseId,
+  generateRandomId,
   productsContainerId,
   stockContainerId,
 } from '../cosmos-db';
-
-function generateRandomId(length = 10) {
-  return Math.random().toString(36).substring(2, length);
-}
 
 const httpTrigger: AzureFunction = async function (
   context: Context,

@@ -7,6 +7,10 @@ export const databaseId = 'produtcs-db';
 export const productsContainerId = 'products';
 export const stockContainerId = 'stock';
 
+export function generateRandomId(length = 10) {
+  return Math.random().toString(36).substring(2, length);
+}
+
 console.log({ key, endpoint });
 
 export const cosmosClient = new CosmosClient({ endpoint, key });
