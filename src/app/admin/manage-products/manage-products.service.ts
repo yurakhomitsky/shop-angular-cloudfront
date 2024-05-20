@@ -1,24 +1,18 @@
 import { Injectable } from '@angular/core';
-import { EMPTY, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import { ApiService } from '../../core/api.service';
-import { switchMap } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 
 @Injectable()
 export class ManageProductsService extends ApiService {
   uploadProductsCSV(file: File): Observable<unknown> {
-    if (!this.endpointEnabled('import')) {
-      console.warn(
-        'Endpoint "import" is disabled. To enable change your environment.ts config',
-      );
-      return EMPTY;
-    }
-
     return this.getPreSignedUrl(file.name).pipe(
       switchMap((url) =>
         this.http.put(url, file, {
           headers: {
             // eslint-disable-next-line @typescript-eslint/naming-convention
             'Content-Type': 'text/csv',
+            'x-ms-blob-type': 'BlockBlob',
           },
         }),
       ),
@@ -28,10 +22,12 @@ export class ManageProductsService extends ApiService {
   private getPreSignedUrl(fileName: string): Observable<string> {
     const url = this.getUrl('import', 'import');
 
-    return this.http.get<string>(url, {
-      params: {
-        name: fileName,
-      },
-    });
+    return this.http
+      .get<{ sasToken: string; sasUrl: string; url: string }>(url, {
+        params: {
+          name: fileName,
+        },
+      })
+      .pipe(map((response) => response.sasUrl));
   }
 }

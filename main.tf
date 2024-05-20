@@ -149,3 +149,79 @@ resource "azurerm_windows_function_app" "products_service" {
     ]
   }
 }
+
+resource "azurerm_resource_group" "rg" {
+  name     = "resource-group-products-service"
+  location = "West Europe"
+}
+
+resource "azurerm_storage_account" "sa" {
+  name                             = "productsservicesa777"
+  resource_group_name              = azurerm_resource_group.rg.name
+  location                         = azurerm_resource_group.rg.location
+  account_tier                     = "Standard"
+  account_replication_type         = "LRS" /*  GRS, RAGRS, ZRS, GZRS, RAGZRS */
+  access_tier                      = "Cool"
+  enable_https_traffic_only        = true
+  allow_nested_items_to_be_public  = true
+  shared_access_key_enabled        = true
+  public_network_access_enabled    = true
+}
+
+resource "azurerm_storage_container" "sa_container" {
+  name                  = "products-service-container"
+  storage_account_name  = azurerm_storage_account.sa.name
+  container_access_type = "private"
+}
+
+resource "azurerm_storage_blob" "sa_blob" {
+  name                   = "products-service-blob"
+  storage_account_name   = azurerm_storage_account.sa.name
+  storage_container_name = azurerm_storage_container.sa_container.name
+  type                   = "Block"
+  access_tier            = "Cool"
+}
+
+resource "azurerm_windows_function_app" "import_service" {
+  name     = "fa-import-service-ne-777"
+  location = "northeurope"
+
+  service_plan_id     = azurerm_service_plan.product_service_plan.id
+  resource_group_name = azurerm_resource_group.rg.name
+
+  storage_account_name       = azurerm_storage_account.sa.name
+  storage_account_access_key = azurerm_storage_account.sa.primary_access_key
+
+  functions_extension_version = "~4"
+  builtin_logging_enabled     = false
+
+  site_config {
+    always_on = false
+    # For production systems set this to false, but consumption plan supports only 32bit workers
+    use_32_bit_worker = true
+
+    # Enable function invocations from Azure Portal.
+    cors {
+      allowed_origins = ["https://portal.azure.com"]
+    }
+
+    application_stack {
+      node_version = "~16"
+    }
+  }
+
+  # The app settings changes cause downtime on the Function App. e.g. with Azure Function App Slots
+  # Therefore it is better to ignore those changes and manage app settings separately off the Terraform.
+  lifecycle {
+    ignore_changes = [
+      app_settings,
+      site_config["application_stack"], // workaround for a bug when azure just "kills" your app
+      tags["hidden-link: /app-insights-instrumentation-key"],
+      tags["hidden-link: /app-insights-resource-id"],
+      tags["hidden-link: /app-insights-conn-string"]
+    ]
+  }
+}
+
+
+
