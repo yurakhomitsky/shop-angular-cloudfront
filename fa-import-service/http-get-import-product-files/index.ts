@@ -17,6 +17,8 @@ const httpTrigger: AzureFunction = async function (
     const accountKey = process.env.AZURE_STORAGE_ACCOUNT_KEY;
     const containerName = 'products-service-container';
 
+    context.log('account', account);
+
     const sharedKeyCredential = new StorageSharedKeyCredential(
       account,
       accountKey,

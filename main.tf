@@ -223,5 +223,20 @@ resource "azurerm_windows_function_app" "import_service" {
   }
 }
 
+resource "azurerm_resource_group" "service_bus_rg" {
+  name     = "service-bus-rg"
+  location = "West Europe"
+}
 
+resource "azurerm_servicebus_namespace" "sb" {
+  name                = "service-bus-import"
+  resource_group_name = azurerm_resource_group.service_bus_rg.name
+  location            = azurerm_resource_group.service_bus_rg.location
+  sku                 = "Standard"
+  capacity            = 0
+}
 
+resource "azurerm_servicebus_queue" "sb_queue" {
+  name                                    = "sb_queue-1"
+  namespace_id                            = azurerm_servicebus_namespace.sb.id
+}

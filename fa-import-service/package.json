@@ -10,6 +10,7 @@
     "publish": "func azure functionapp publish fa-import-service-ne-777"
   },
   "dependencies": {
+    "@azure/service-bus": "^7.9.4",
     "@azure/storage-blob": "^12.17.0",
     "csv-parse": "^5.5.5"
   },

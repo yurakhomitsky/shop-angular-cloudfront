@@ -5,7 +5,7 @@
       "type": "blobTrigger",
       "direction": "in",
       "name": "blob",
-      "path": "uploaded",
+      "path": "products-service-container",
       "connection": "AZURE_STORAGE_CONNECTION_STRING"
     }
   ],
