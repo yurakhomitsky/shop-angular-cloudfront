@@ -62,3 +62,5 @@ Thumbs.db
 /httpRequests/
 # GitHub Copilot persisted chat sessions
 /copilot/chatSessions
+
+/server/node_modules
